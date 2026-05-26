@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meu PWA Evoluído</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#007acc">
+  <style>
+    /* Estilos básicos para organizar as telas */
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f2f5;
+    }
+    .screen {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 300px;
+      width: 100%;
+    }
+    .hidden {
+      display: none;
+    }
+    button {
+      background-color: #007acc;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 15px;
+      width: 100%;
+    }
+    button:hover {
+      background-color: #005999;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .error {
+      color: red;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    .success {
+      color: green;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="home-screen" class="screen">
+    <h1>Bem-vindo ao App</h1>
+    <p>Este é o seu PWA evoluído.</p>
+    <button onclick="navigateTo('login-screen')">Ir para o Login</button>
+  </div>
+
+  <div id="login-screen" class="screen hidden">
+    <h2>Área de Login</h2>
+    <form id="login-form" onsubmit="handleLogin(event)">
+      <input type="text" id="rm-input" placeholder="Digite seu RM" required>
+      <input type="password" id="password-input" placeholder="Digite sua Senha" required>
+      <button type="submit">Entrar</button>
+    </form>
+    <p id="error-message" class="error"></p>
+    <button onclick="navigateTo('home-screen')" style="background-color: #666;">Voltar</button>
+  </div>
+
+  <div id="success-screen" class="screen hidden">
+    <h2 class="success">Login Efetuado com Sucesso!</h2>
+    <p>Olá, <span id="user-display"></span>. Você está conectado.</p>
+    <button onclick="logout()" style="background-color: #d9534f;">Sair</button>
+  </div>
+
+  <script>
+    // Configuração do RM padrão solicitado
+    const LOGIN_CORRETO = "RM";
+    const SENHA_CORRETA = "RM";
+
+    // Função para alternar entre as telas
+    function navigateTo(screenId) {
+      document.getElementById('home-screen').classList.add('hidden');
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('success-screen').classList.add('hidden');
+      
+      document.getElementById(screenId).classList.remove('hidden');
+    }
+
+    // Função que valida o login
+    function handleLogin(event) {
+      event.preventDefault(); // Evita que a página recarregue
+      
+      const rmValue = document.getElementById('rm-input').value;
+      const passwordValue = document.getElementById('password-input').value;
+      const errorMessage = document.getElementById('error-message');
+
+      // Verifica se o RM e a Senha são iguais a "RM"
+      if (rmValue === LOGIN_CORRETO && passwordValue === SENHA_CORRETA) {
+        errorMessage.innerText = "";
+        document.getElementById('user-display').innerText = rmValue;
+        navigateTo('success-screen');
+      } else {
+        errorMessage.innerText = "RM ou Senha incorretos. Use 'RM' para ambos.";
+      }
+    }
+
+    // Função para deslogar
+    function logout() {
+      document.getElementById('login-form').reset();
+      document.getElementById('error-message').innerText = "";
+      navigateTo('home-screen');
+    }
+
+    // Registro do Service Worker (Mantendo o PWA ativo)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('Service Worker ativo!', reg))
+          .catch(err => console.log('Erro no Service Worker:', err));
+      });
+    }
+  </script>
+</body>
+</html>
